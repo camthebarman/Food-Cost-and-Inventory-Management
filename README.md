@@ -60,3 +60,27 @@ A sample kitchen — 37 ingredients, 7 dishes (cheeseburger, Caesar, bolognese, 
 flatbread, alfredo, roasted potatoes), and 2 events (a 120-guest wedding and a 40-guest
 corporate lunch) — is seeded on first load so the tool is immediately usable. Edit or delete
 it freely, or use **Reset Data** to restore the sample set at any time.
+
+## Where the sample prices come from
+
+The seeded purchase packs and prices are real quotes captured on **2026-09-15**, not
+placeholders:
+
+- **Center-of-plate, dry goods, pantry, bakery and disposables** — WebstaurantStore product
+  listings, at foodservice list price (the non-member price where both were shown), in the
+  pack sizes a kitchen actually orders: a 20 lb case of 80/20 ground beef, a #10 can of
+  crushed tomatoes, 96 brioche buns, 3,000 dinner napkins.
+- **Fresh produce** — USDA AMS Specialty Crops *terminal market* reports for 2026-09-08 to
+  09-14 (New York, Atlanta, Baltimore, Miami). Terminal market is the wholesale level a
+  distributor sells to a kitchen at, which is the right benchmark here — shipping-point FOB
+  prices are a step too far upstream and would understate what you actually pay.
+- **Shell eggs** — USDA ERS retail price spreads, August 2026.
+
+Menu prices on the seeded dishes are ordinary market prices, chosen to sit sensibly against
+those costs; salmon and the Margherita flatbread are deliberately left tight so the
+over-target flagging is visible out of the box.
+
+Produce and protein pricing moves constantly and is regional, so treat all of it as a
+starting point and overwrite it with your own invoices — that's what the Ingredients tab is
+for. Each seeded ingredient carries a source tag in `js/storage.js` noting which of the
+three sources it came from.

@@ -9,61 +9,72 @@ const Storage = (function () {
   const SEED_VERSION = 1;
 
   // ---- Ingredients ----
+  // Purchase packs and prices below are real quotes captured on 2026-09-15 from:
+  //   [W] WebstaurantStore product listings (foodservice list price; non-member
+  //       price where both were shown) — center-of-plate, dry goods, pantry,
+  //       bakery, disposables.
+  //   [T] USDA AMS Specialty Crops terminal market reports, 2026-09-08 to 09-14
+  //       (New York NX_FV010/NX_FV020, Atlanta AJ_FV020, Baltimore, Miami) —
+  //       fresh produce, at the wholesale level a distributor sells to a kitchen.
+  //   [E] USDA ERS retail price spreads, August 2026 — shell eggs.
+  // Produce and proteins move constantly and pricing is regional, so treat these
+  // as a starting point: overwrite them with your own invoices.
+  //
   // onHandQty and parQty are stored in the ingredient's BASE unit (oz, fl oz, each).
   function seedIngredients() {
     return [
       // Protein
-      { id: "ing_chicken_breast", sinceVersion: 1, name: "Chicken Breast", category: "Protein", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 40, purchaseCost: 116, yieldPct: 95, onHandQty: 320, parQty: 160 },
-      { id: "ing_ground_beef", sinceVersion: 1, name: "Ground Beef 80/20", category: "Protein", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 10, purchaseCost: 45, yieldPct: 100, onHandQty: 160, parQty: 96 },
-      { id: "ing_salmon_fillet", sinceVersion: 1, name: "Salmon Fillet", category: "Protein", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 10, purchaseCost: 119, yieldPct: 88, onHandQty: 40, parQty: 48 },
-      { id: "ing_bacon", sinceVersion: 1, name: "Applewood Bacon", category: "Protein", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 15, purchaseCost: 68, yieldPct: 100, onHandQty: 96, parQty: 48 },
+      { id: "ing_chicken_breast", sinceVersion: 1, name: "Chicken Breast", category: "Protein", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 10, purchaseCost: 45.39, yieldPct: 95, onHandQty: 320, parQty: 160 }, // [W] 4 oz B/S fillet, 2x5 lb
+      { id: "ing_ground_beef", sinceVersion: 1, name: "Ground Beef 80/20", category: "Protein", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 20, purchaseCost: 136.92, yieldPct: 100, onHandQty: 160, parQty: 96 }, // [W] 4x5 lb frozen
+      { id: "ing_salmon_fillet", sinceVersion: 1, name: "Salmon Fillet", category: "Protein", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 10, purchaseCost: 119.85, yieldPct: 88, onHandQty: 40, parQty: 48 }, // [W] Atlantic, 6 oz portions
+      { id: "ing_bacon", sinceVersion: 1, name: "Applewood Bacon", category: "Protein", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 15, purchaseCost: 79.59, yieldPct: 100, onHandQty: 96, parQty: 48 }, // [W] 18-22 ct sliced
 
-      // Produce
-      { id: "ing_romaine", sinceVersion: 1, name: "Romaine Hearts", category: "Produce", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 24, purchaseCost: 32, yieldPct: 80, onHandQty: 192, parQty: 96 },
-      { id: "ing_roma_tomato", sinceVersion: 1, name: "Roma Tomatoes", category: "Produce", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 25, purchaseCost: 27, yieldPct: 90, onHandQty: 160, parQty: 80 },
-      { id: "ing_yellow_onion", sinceVersion: 1, name: "Yellow Onion", category: "Produce", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 50, purchaseCost: 28, yieldPct: 85, onHandQty: 320, parQty: 160 },
-      { id: "ing_garlic", sinceVersion: 1, name: "Peeled Garlic", category: "Produce", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 5, purchaseCost: 17, yieldPct: 97, onHandQty: 32, parQty: 16 },
-      { id: "ing_russet_potato", sinceVersion: 1, name: "Russet Potatoes", category: "Produce", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 50, purchaseCost: 24, yieldPct: 82, onHandQty: 480, parQty: 240 },
-      { id: "ing_carrot", sinceVersion: 1, name: "Carrots", category: "Produce", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 25, purchaseCost: 19, yieldPct: 80, onHandQty: 120, parQty: 48 },
-      { id: "ing_mushroom", sinceVersion: 1, name: "Cremini Mushrooms", category: "Produce", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 10, purchaseCost: 26, yieldPct: 95, onHandQty: 64, parQty: 32 },
-      { id: "ing_basil", sinceVersion: 1, name: "Fresh Basil", category: "Produce", baseUnit: "ozwt", purchaseUnit: "ozwt", purchaseQty: 8, purchaseCost: 7.5, yieldPct: 70, onHandQty: 3, parQty: 4 },
-      { id: "ing_lemon", sinceVersion: 1, name: "Lemon", category: "Produce", baseUnit: "each", unitNoun: "lemon", purchaseUnit: "each", purchaseQty: 165, purchaseCost: 38, yieldPct: 100, onHandQty: 60, parQty: 36 },
+      // Produce — [T] terminal market wholesale
+      { id: "ing_romaine", sinceVersion: 1, name: "Romaine Hearts", category: "Produce", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 21, purchaseCost: 25.5, yieldPct: 80, onHandQty: 192, parQty: 96 }, // Atlanta 9/14, 12x3ct
+      { id: "ing_roma_tomato", sinceVersion: 1, name: "Roma Tomatoes", category: "Produce", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 25, purchaseCost: 31, yieldPct: 90, onHandQty: 160, parQty: 80 }, // NY 9/14, 25 lb carton
+      { id: "ing_yellow_onion", sinceVersion: 1, name: "Yellow Onion", category: "Produce", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 50, purchaseCost: 25.5, yieldPct: 85, onHandQty: 320, parQty: 160 }, // Baltimore 9/9, 50 lb sack
+      { id: "ing_garlic", sinceVersion: 1, name: "Peeled Garlic", category: "Produce", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 5, purchaseCost: 11.25, yieldPct: 97, onHandQty: 32, parQty: 16 }, // NY 9/14, 5 lb jar
+      { id: "ing_russet_potato", sinceVersion: 1, name: "Russet Potatoes", category: "Produce", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 50, purchaseCost: 32.5, yieldPct: 82, onHandQty: 480, parQty: 240 }, // Baltimore 9/9, 50 lb 80s
+      { id: "ing_carrot", sinceVersion: 1, name: "Carrots", category: "Produce", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 50, purchaseCost: 21.5, yieldPct: 80, onHandQty: 120, parQty: 48 }, // NY 9/14, 10x5 lb
+      { id: "ing_mushroom", sinceVersion: 1, name: "Cremini Mushrooms", category: "Produce", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 5, purchaseCost: 15, yieldPct: 95, onHandQty: 64, parQty: 32 }, // Atlanta 9/14, 5 lb carton
+      { id: "ing_basil", sinceVersion: 1, name: "Fresh Basil", category: "Produce", baseUnit: "ozwt", purchaseUnit: "kg", purchaseQty: 1, purchaseCost: 12.5, yieldPct: 70, countUnit: "ozwt", onHandQty: 3, parQty: 4 }, // NY 9/14, 1 kg bunched
+      { id: "ing_lemon", sinceVersion: 1, name: "Lemon", category: "Produce", baseUnit: "each", unitNoun: "lemon", purchaseUnit: "each", purchaseQty: 140, purchaseCost: 24, yieldPct: 100, onHandQty: 60, parQty: 36 }, // NY 9/14, 17 kg 140s
 
       // Dairy
-      { id: "ing_butter", sinceVersion: 1, name: "Unsalted Butter", category: "Dairy", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 1, purchaseCost: 4.2, yieldPct: 100, onHandQty: 160, parQty: 64 },
-      { id: "ing_heavy_cream", sinceVersion: 1, name: "Heavy Cream", category: "Dairy", baseUnit: "floz", purchaseUnit: "qt", purchaseQty: 1, purchaseCost: 4.5, yieldPct: 100, onHandQty: 128, parQty: 64 },
-      { id: "ing_parmesan", sinceVersion: 1, name: "Parmesan", category: "Dairy", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 5, purchaseCost: 54, yieldPct: 92, onHandQty: 12, parQty: 16 },
-      { id: "ing_mozzarella", sinceVersion: 1, name: "Fresh Mozzarella", category: "Dairy", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 6, purchaseCost: 33, yieldPct: 100, onHandQty: 18, parQty: 24 },
-      { id: "ing_cheddar", sinceVersion: 1, name: "Sharp Cheddar", category: "Dairy", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 5, purchaseCost: 28, yieldPct: 100, onHandQty: 40, parQty: 16 },
-      { id: "ing_egg", sinceVersion: 1, name: "Large Egg", category: "Dairy", baseUnit: "each", unitNoun: "egg", purchaseUnit: "dozen", purchaseQty: 30, purchaseCost: 62, yieldPct: 100, onHandQty: 120, parQty: 60 },
+      { id: "ing_butter", sinceVersion: 1, name: "Unsalted Butter", category: "Dairy", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 36, purchaseCost: 116.42, yieldPct: 100, onHandQty: 160, parQty: 64 }, // [W] 36x1 lb
+      { id: "ing_heavy_cream", sinceVersion: 1, name: "Heavy Cream", category: "Dairy", baseUnit: "floz", purchaseUnit: "qt", purchaseQty: 12, purchaseCost: 72.49, yieldPct: 100, onHandQty: 128, parQty: 64 }, // [W] 12x32 fl oz, 40%
+      { id: "ing_parmesan", sinceVersion: 1, name: "Parmesan", category: "Dairy", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 10, purchaseCost: 79.99, yieldPct: 92, onHandQty: 12, parQty: 16 }, // [W] half wheel
+      { id: "ing_mozzarella", sinceVersion: 1, name: "Fresh Mozzarella", category: "Dairy", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 6, purchaseCost: 33.39, yieldPct: 100, onHandQty: 18, parQty: 24 }, // [W] ovoline, 2x3 lb tub
+      { id: "ing_cheddar", sinceVersion: 1, name: "Sharp Cheddar", category: "Dairy", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 10, purchaseCost: 54.49, yieldPct: 100, onHandQty: 40, parQty: 16 }, // [W] 2x5 lb block
+      { id: "ing_egg", sinceVersion: 1, name: "Large Egg", category: "Dairy", baseUnit: "each", unitNoun: "egg", purchaseUnit: "dozen", purchaseQty: 15, purchaseCost: 34.08, yieldPct: 100, onHandQty: 120, parQty: 60 }, // [E] $2.272/doz retail
 
       // Dry goods
-      { id: "ing_spaghetti", sinceVersion: 1, name: "Spaghetti (dry)", category: "Dry Goods", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 20, purchaseCost: 19, yieldPct: 100, onHandQty: 160, parQty: 80 },
-      { id: "ing_jasmine_rice", sinceVersion: 1, name: "Jasmine Rice (dry)", category: "Dry Goods", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 25, purchaseCost: 28, yieldPct: 100, onHandQty: 200, parQty: 100 },
-      { id: "ing_ap_flour", sinceVersion: 1, name: "All-Purpose Flour", category: "Dry Goods", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 50, purchaseCost: 24, yieldPct: 100, onHandQty: 400, parQty: 160 },
+      { id: "ing_spaghetti", sinceVersion: 1, name: "Spaghetti (dry)", category: "Dry Goods", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 20, purchaseCost: 15.49, yieldPct: 100, onHandQty: 160, parQty: 80 }, // [W] 20 lb bag
+      { id: "ing_jasmine_rice", sinceVersion: 1, name: "Jasmine Rice (dry)", category: "Dry Goods", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 25, purchaseCost: 33.7, yieldPct: 100, onHandQty: 200, parQty: 100 }, // [W] Thai Hom Mali 25 lb
+      { id: "ing_ap_flour", sinceVersion: 1, name: "All-Purpose Flour", category: "Dry Goods", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 50, purchaseCost: 28.99, yieldPct: 100, onHandQty: 400, parQty: 160 }, // [W] 50 lb bag
 
       // Bakery
-      { id: "ing_brioche_bun", sinceVersion: 1, name: "Brioche Bun", category: "Bakery", baseUnit: "each", unitNoun: "bun", purchaseUnit: "each", purchaseQty: 96, purchaseCost: 42, yieldPct: 100, onHandQty: 72, parQty: 48 },
-      { id: "ing_flatbread_dough", sinceVersion: 1, name: "Flatbread Dough Ball", category: "Bakery", baseUnit: "each", unitNoun: "dough ball", purchaseUnit: "each", purchaseQty: 40, purchaseCost: 36, yieldPct: 100, onHandQty: 10, parQty: 16 },
-      { id: "ing_crouton", sinceVersion: 1, name: "Garlic Croutons", category: "Bakery", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 5, purchaseCost: 16, yieldPct: 100, onHandQty: 40, parQty: 16 },
+      { id: "ing_brioche_bun", sinceVersion: 1, name: "Brioche Bun", category: "Bakery", baseUnit: "each", unitNoun: "bun", purchaseUnit: "each", purchaseQty: 96, purchaseCost: 104.99, yieldPct: 100, onHandQty: 72, parQty: 48 }, // [W] 4" sliced, 96 ct
+      { id: "ing_flatbread_dough", sinceVersion: 1, name: "Flatbread Dough Ball", category: "Bakery", baseUnit: "each", unitNoun: "dough ball", purchaseUnit: "each", purchaseQty: 30, purchaseCost: 71.29, yieldPct: 100, onHandQty: 10, parQty: 16 }, // [W] 16 oz, 30 ct
+      { id: "ing_crouton", sinceVersion: 1, name: "Garlic Croutons", category: "Bakery", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 10, purchaseCost: 30.99, yieldPct: 100, onHandQty: 40, parQty: 16 }, // [W] 4x2.5 lb
 
       // Pantry
-      { id: "ing_olive_oil", sinceVersion: 1, name: "Olive Oil", category: "Pantry", baseUnit: "floz", purchaseUnit: "liter", purchaseQty: 3, purchaseCost: 29, yieldPct: 100, onHandQty: 101.4, parQty: 34 },
-      { id: "ing_fryer_oil", sinceVersion: 1, name: "Fryer Oil", category: "Pantry", baseUnit: "floz", purchaseUnit: "gal", purchaseQty: 4.75, purchaseCost: 38, yieldPct: 100, onHandQty: 608, parQty: 128 },
-      { id: "ing_crushed_tomato", sinceVersion: 1, name: "Crushed Tomatoes (#10 can)", category: "Pantry", baseUnit: "ozwt", purchaseUnit: "ozwt", purchaseQty: 102, purchaseCost: 4.8, yieldPct: 100, onHandQty: 306, parQty: 102 },
-      { id: "ing_caesar_dressing", sinceVersion: 1, name: "Caesar Dressing", category: "Pantry", baseUnit: "floz", purchaseUnit: "gal", purchaseQty: 1, purchaseCost: 22, yieldPct: 100, onHandQty: 128, parQty: 64 },
-      { id: "ing_chicken_stock", sinceVersion: 1, name: "Chicken Stock", category: "Pantry", baseUnit: "floz", purchaseUnit: "gal", purchaseQty: 1, purchaseCost: 9.5, yieldPct: 100, onHandQty: 384, parQty: 128 },
-      { id: "ing_soy_sauce", sinceVersion: 1, name: "Soy Sauce", category: "Pantry", baseUnit: "floz", purchaseUnit: "gal", purchaseQty: 1, purchaseCost: 14, yieldPct: 100, onHandQty: 128, parQty: 32 },
+      { id: "ing_olive_oil", sinceVersion: 1, name: "Olive Oil", category: "Pantry", baseUnit: "floz", purchaseUnit: "liter", purchaseQty: 12, purchaseCost: 102.99, yieldPct: 100, onHandQty: 101.4, parQty: 34 }, // [W] EVOO 4x3 L
+      { id: "ing_fryer_oil", sinceVersion: 1, name: "Fryer Oil", category: "Pantry", baseUnit: "floz", purchaseUnit: "gal", purchaseQty: 6, purchaseCost: 63.49, yieldPct: 100, onHandQty: 608, parQty: 128 }, // [W] veg oil 6x1 gal
+      { id: "ing_crushed_tomato", sinceVersion: 1, name: "Crushed Tomatoes (#10 can)", category: "Pantry", baseUnit: "ozwt", purchaseUnit: "ozwt", purchaseQty: 102, purchaseCost: 4.92, yieldPct: 100, onHandQty: 306, parQty: 102 }, // [W] $29.49/6 cans
+      { id: "ing_caesar_dressing", sinceVersion: 1, name: "Caesar Dressing", category: "Pantry", baseUnit: "floz", purchaseUnit: "gal", purchaseQty: 4, purchaseCost: 92.49, yieldPct: 100, onHandQty: 128, parQty: 64 }, // [W] 4x1 gal
+      { id: "ing_chicken_stock", sinceVersion: 1, name: "Chicken Stock", category: "Pantry", baseUnit: "floz", purchaseUnit: "floz", purchaseQty: 576, purchaseCost: 48.49, yieldPct: 100, countUnit: "gal", onHandQty: 384, parQty: 128 }, // [W] 12x48 oz broth
+      { id: "ing_soy_sauce", sinceVersion: 1, name: "Soy Sauce", category: "Pantry", baseUnit: "floz", purchaseUnit: "gal", purchaseQty: 4, purchaseCost: 59.99, yieldPct: 100, onHandQty: 128, parQty: 32 }, // [W] Kikkoman 4x1 gal
 
       // Spice
-      { id: "ing_kosher_salt", sinceVersion: 1, name: "Kosher Salt", category: "Spice", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 3, purchaseCost: 5.5, yieldPct: 100, onHandQty: 96, parQty: 48 },
-      { id: "ing_black_pepper", sinceVersion: 1, name: "Ground Black Pepper", category: "Spice", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 1, purchaseCost: 12, yieldPct: 100, onHandQty: 16, parQty: 8 },
+      { id: "ing_kosher_salt", sinceVersion: 1, name: "Kosher Salt", category: "Spice", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 50, purchaseCost: 49.49, yieldPct: 100, onHandQty: 96, parQty: 48 }, // [W] Morton coarse 50 lb
+      { id: "ing_black_pepper", sinceVersion: 1, name: "Ground Black Pepper", category: "Spice", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 25, purchaseCost: 148.99, yieldPct: 100, onHandQty: 16, parQty: 8 }, // [W] table grind 25 lb
 
       // Disposables — the line items that quietly wreck a catering quote
-      { id: "ing_togo_container", sinceVersion: 1, name: "To-Go Container", category: "Disposables", baseUnit: "each", unitNoun: "container", purchaseUnit: "each", purchaseQty: 200, purchaseCost: 54, yieldPct: 100, onHandQty: 150, parQty: 100 },
-      { id: "ing_cutlery_kit", sinceVersion: 1, name: "Cutlery Kit", category: "Disposables", baseUnit: "each", unitNoun: "kit", purchaseUnit: "each", purchaseQty: 250, purchaseCost: 32, yieldPct: 100, onHandQty: 200, parQty: 100 },
-      { id: "ing_napkin", sinceVersion: 1, name: "Dinner Napkin", category: "Disposables", baseUnit: "each", unitNoun: "napkin", purchaseUnit: "each", purchaseQty: 1000, purchaseCost: 18, yieldPct: 100, onHandQty: 800, parQty: 400 },
-      { id: "ing_chafing_fuel", sinceVersion: 1, name: "Chafing Fuel Can", category: "Disposables", baseUnit: "each", unitNoun: "can", purchaseUnit: "each", purchaseQty: 24, purchaseCost: 38, yieldPct: 100, onHandQty: 24, parQty: 12 },
+      { id: "ing_togo_container", sinceVersion: 1, name: "To-Go Container", category: "Disposables", baseUnit: "each", unitNoun: "container", purchaseUnit: "each", purchaseQty: 200, purchaseCost: 25.49, yieldPct: 100, onHandQty: 150, parQty: 100 }, // [W] 9x6x3 hinged
+      { id: "ing_cutlery_kit", sinceVersion: 1, name: "Cutlery Kit", category: "Disposables", baseUnit: "each", unitNoun: "kit", purchaseUnit: "each", purchaseQty: 500, purchaseCost: 22.99, yieldPct: 100, onHandQty: 200, parQty: 100 }, // [W] wrapped, w/ napkin
+      { id: "ing_napkin", sinceVersion: 1, name: "Dinner Napkin", category: "Disposables", baseUnit: "each", unitNoun: "napkin", purchaseUnit: "each", purchaseQty: 3000, purchaseCost: 32.99, yieldPct: 100, onHandQty: 800, parQty: 400 }, // [W] 2-ply 17x15
+      { id: "ing_chafing_fuel", sinceVersion: 1, name: "Chafing Fuel Can", category: "Disposables", baseUnit: "each", unitNoun: "can", purchaseUnit: "each", purchaseQty: 24, purchaseCost: 27.99, yieldPct: 100, onHandQty: 24, parQty: 12 }, // [W] 4 hr wick
     ];
   }
 
@@ -75,7 +86,7 @@ const Storage = (function () {
     return [
       {
         id: "rec_classic_burger", sinceVersion: 1, name: "Classic Cheeseburger & Fries", category: "Sandwiches",
-        portions: 1, menuPrice: 11, targetFoodCostPct: 30, servingsPerWeek: 210,
+        portions: 1, menuPrice: 16, targetFoodCostPct: 30, servingsPerWeek: 210,
         notes: "6 oz patty, smashed. Fries salted to order.",
         components: [
           { id: g("comp"), ingredientId: "ing_ground_beef", qty: 6 },
@@ -92,7 +103,7 @@ const Storage = (function () {
       },
       {
         id: "rec_chicken_caesar", sinceVersion: 1, name: "Chicken Caesar Salad", category: "Salads",
-        portions: 1, menuPrice: 9.5, targetFoodCostPct: 28, servingsPerWeek: 140,
+        portions: 1, menuPrice: 14, targetFoodCostPct: 28, servingsPerWeek: 140,
         notes: "Grilled chicken, sliced on the bias.",
         components: [
           { id: g("comp"), ingredientId: "ing_chicken_breast", qty: 5 },
@@ -107,7 +118,7 @@ const Storage = (function () {
       },
       {
         id: "rec_spaghetti_bolognese", sinceVersion: 1, name: "Spaghetti Bolognese", category: "Pasta",
-        portions: 8, menuPrice: 9, targetFoodCostPct: 26, servingsPerWeek: 120,
+        portions: 8, menuPrice: 18, targetFoodCostPct: 26, servingsPerWeek: 120,
         notes: "Batch recipe — sauce yields 8 plates. Quantities below are per batch.",
         components: [
           { id: g("comp"), ingredientId: "ing_spaghetti", qty: 32 },
@@ -141,7 +152,7 @@ const Storage = (function () {
       },
       {
         id: "rec_margherita_flatbread", sinceVersion: 1, name: "Margherita Flatbread", category: "Flatbreads",
-        portions: 1, menuPrice: 9, targetFoodCostPct: 24, servingsPerWeek: 130,
+        portions: 1, menuPrice: 15, targetFoodCostPct: 24, servingsPerWeek: 130,
         notes: "Deck oven, 6 minutes. Basil after the bake.",
         components: [
           { id: g("comp"), ingredientId: "ing_flatbread_dough", qty: 1 },
@@ -154,7 +165,7 @@ const Storage = (function () {
       },
       {
         id: "rec_chicken_alfredo", sinceVersion: 1, name: "Chicken Alfredo", category: "Pasta",
-        portions: 1, menuPrice: 13, targetFoodCostPct: 28, servingsPerWeek: 110,
+        portions: 1, menuPrice: 19, targetFoodCostPct: 28, servingsPerWeek: 110,
         notes: "Sauce mounted to order.",
         components: [
           { id: g("comp"), ingredientId: "ing_spaghetti", qty: 4 },
@@ -169,7 +180,7 @@ const Storage = (function () {
       },
       {
         id: "rec_herb_potatoes", sinceVersion: 1, name: "Herb Roasted Potatoes", category: "Sides",
-        portions: 12, menuPrice: 5, targetFoodCostPct: 18, servingsPerWeek: 90,
+        portions: 12, menuPrice: 6, targetFoodCostPct: 18, servingsPerWeek: 90,
         notes: "Batch recipe — one full sheet pan yields 12 sides.",
         components: [
           { id: g("comp"), ingredientId: "ing_russet_potato", qty: 96 },
