@@ -4,6 +4,8 @@ const App = (function () {
   let state = Storage.load();
   let activeEventId = state.events.length ? state.events[0].id : null;
 
+  const MENUS = ["Appetizers", "Lunch", "Dinner"];
+
   const CATEGORIES = [
     "Protein", "Produce", "Dairy", "Dry Goods", "Bakery", "Pantry",
     "Spice", "Beverage", "Disposables", "Prep / Sub-Recipe", "Other",
@@ -39,6 +41,31 @@ const App = (function () {
   function getIngredient(id) { return state.ingredients.find((i) => i.id === id); }
   function getRecipe(id) { return state.recipes.find((r) => r.id === id); }
   function getEvent(id) { return state.events.find((e) => e.id === id); }
+
+  function menuOrder(name) {
+    const i = MENUS.indexOf(name);
+    return i === -1 ? MENUS.length : i;
+  }
+
+  // Dishes grouped by the menu they sit on, in service order. Any custom menu a
+  // user invents sorts after the built-in three rather than disappearing.
+  function groupedByMenu() {
+    const groups = new Map();
+    state.recipes.forEach((r) => {
+      const m = r.menu || "Dinner";
+      if (!groups.has(m)) groups.set(m, []);
+      groups.get(m).push(r);
+    });
+    return Array.from(groups.entries()).sort(
+      (a, b) => menuOrder(a[0]) - menuOrder(b[0]) || a[0].localeCompare(b[0])
+    );
+  }
+
+  function menuOptions(current) {
+    const opts = MENUS.slice();
+    if (current && !opts.includes(current)) opts.push(current);
+    return opts;
+  }
 
   // Unit an ingredient's inventory is counted in — its purchase unit unless overridden.
   function countUnit(ing) { return ing.countUnit || ing.purchaseUnit; }
@@ -354,7 +381,22 @@ const App = (function () {
       panel.append(el("div", { class: "card empty-state" }, ["No recipes yet. Add your first dish."]));
       return;
     }
-    state.recipes.forEach((r) => panel.append(renderRecipeCard(r)));
+
+    groupedByMenu().forEach(([menu, dishes]) => {
+      const priced = dishes.filter((r) => r.menuPrice);
+      const avgPct = priced.length
+        ? priced.reduce((sum, r) => sum + Calc.foodCostPct(Calc.recipeCost(r, getIngredient), r.menuPrice), 0) / priced.length
+        : null;
+      panel.append(
+        el("div", { class: "menu-head" }, [
+          el("h3", {}, [menu]),
+          el("span", { class: "muted" }, [
+            `${dishes.length} dish${dishes.length === 1 ? "" : "es"}${avgPct == null ? "" : ` · avg food cost ${Calc.fmtPct(avgPct)}`}`,
+          ]),
+        ])
+      );
+      dishes.forEach((r) => panel.append(renderRecipeCard(r)));
+    });
   }
 
   function renderRecipeCard(recipe) {
@@ -377,7 +419,7 @@ const App = (function () {
         el("div", {}, [
           el("h3", {}, [recipe.name]),
           el("div", { class: "recipe-meta" }, [
-            `${recipe.category || "Uncategorized"} · ${portions > 1 ? `batch of ${Calc.fmtQty(portions)} servings (batch cost ${Calc.fmtMoney(batchCost)})` : "single serving"}`,
+            `${recipe.menu || "Dinner"} · ${recipe.category || "Uncategorized"} · ${portions > 1 ? `batch of ${Calc.fmtQty(portions)} servings (batch cost ${Calc.fmtMoney(batchCost)})` : "single serving"}`,
           ]),
         ]),
         el("div", { class: "row-actions" }, [
@@ -463,7 +505,7 @@ const App = (function () {
       const draft = existing
         ? JSON.parse(JSON.stringify(existing))
         : {
-            name: "", category: "", portions: 1, menuPrice: "",
+            name: "", category: "", menu: "Dinner", portions: 1, menuPrice: "",
             targetFoodCostPct: state.settings.defaultTargetFoodCostPct || 30,
             servingsPerWeek: "", notes: "", components: [],
           };
@@ -474,6 +516,11 @@ const App = (function () {
         form.append(
           field("Recipe Name", el("input", { type: "text", required: "required", value: draft.name, oninput: (e) => (draft.name = e.target.value) })),
           fieldRow([
+            field(
+              "Menu",
+              selectEl(menuOptions(draft.menu), draft.menu || "Dinner", (v) => (draft.menu = v), true),
+              "Which menu this dish is sold on — drives the Recipes grouping and the Insights breakdown."
+            ),
             field("Category (optional)", el("input", { type: "text", placeholder: "Entrées, Sides, Pasta…", value: draft.category || "", oninput: (e) => (draft.category = e.target.value) })),
             field(
               "Batch Yield (servings)",
@@ -838,7 +885,7 @@ const App = (function () {
           el("input", {
             type: "number", step: "any", min: "0", value: r.servingsPerWeek,
             oninput: (e) => { r.servingsPerWeek = Number(e.target.value) || 0; persist(); },
-            onchange: () => { renderUsage(); renderDashboard(); renderInventory(); },
+            onchange: () => { renderUsage(); renderDashboard(); renderInventory(); renderInsights(); },
           })
         )
       );
@@ -1469,6 +1516,313 @@ const App = (function () {
     toast("Event deleted.");
   }
 
+  // ================= INSIGHTS =================
+  // The read on the menu: what sells, what earns, what shares a prep list, and
+  // what stands alone — without anyone having to build a spreadsheet.
+  function renderInsights() {
+    const panel = $("#panel-insights");
+    panel.innerHTML = "";
+    panel.append(
+      el("div", { class: "panel-head" }, [
+        el("div", {}, [
+          el("h2", {}, ["Insights"]),
+          el("div", { class: "sub" }, ["What sells, what doesn't, which dishes share a prep list, and which ones stand on their own."]),
+        ]),
+      ])
+    );
+
+    if (state.recipes.length < 2) {
+      panel.append(el("div", { class: "card empty-state" }, ["Add a few dishes — with servings per week on the Usage tab — and the menu read shows up here."]));
+      return;
+    }
+
+    const ranked = Calc.popularityRanking(state.recipes, getIngredient);
+    const withServings = ranked.filter((r) => r.servings > 0);
+    const best = withServings[0];
+    const worst = withServings[withServings.length - 1];
+    const topProfit = ranked.slice().sort((a, b) => b.weeklyProfit - a.weeklyProfit)[0];
+    const pricedRows = ranked.filter((r) => r.foodCostPct !== null);
+    const worstPct = pricedRows.slice().sort((a, b) => b.foodCostPct - a.foodCostPct)[0];
+
+    panel.append(
+      el("div", { class: "grid grid-4" }, [
+        insightStat("Most Popular", best ? best.recipe.name : "—", best ? `${Calc.fmtNum(best.servings, 0)} / week` : ""),
+        insightStat("Least Popular", worst ? worst.recipe.name : "—", worst ? `${Calc.fmtNum(worst.servings, 0)} / week` : ""),
+        insightStat("Biggest Weekly Profit", topProfit ? topProfit.recipe.name : "—", topProfit ? Calc.fmtMoney(topProfit.weeklyProfit) + " / week" : ""),
+        insightStat("Highest Food Cost", worstPct ? worstPct.recipe.name : "—", worstPct ? Calc.fmtPct(worstPct.foodCostPct) + " of price" : ""),
+      ])
+    );
+
+    panel.append(renderPopularityCard(ranked));
+    panel.append(renderMenuEngineeringCard());
+    panel.append(renderSharedIngredientsCard());
+    panel.append(renderStandaloneCard());
+    panel.append(
+      el("div", { class: "two-col" }, [renderOrphanCard(), renderWorkhorseCard()])
+    );
+  }
+
+  function insightStat(label, value, sub) {
+    return el("div", { class: "stat-card" }, [
+      el("div", { class: "label" }, [label]),
+      el("div", { class: "value small" }, [value]),
+      sub ? el("div", { class: "muted small-note" }, [sub]) : null,
+    ]);
+  }
+
+  // ---- what sells ----
+  function renderPopularityCard(ranked) {
+    const card = el("div", { class: "card" }, [
+      el("h3", {}, ["Menu Mix & Popularity"]),
+      el("div", { class: "sub", style: "margin-bottom:10px" }, ["Ranked by servings per week. Share of covers is that dish's slice of everything you sell in a week."]),
+    ]);
+    const maxServings = Math.max(...ranked.map((r) => r.servings), 1);
+    const table = el("table", {}, [
+      el("thead", {}, [
+        el("tr", {}, [
+          el("th", {}, ["Dish"]),
+          el("th", {}, ["Menu"]),
+          el("th", { class: "num" }, ["Servings / Wk"]),
+          el("th", {}, ["Share Of Covers"]),
+          el("th", { class: "num" }, ["Plate Cost"]),
+          el("th", { class: "num" }, ["Price"]),
+          el("th", { class: "num" }, ["Food Cost %"]),
+          el("th", { class: "num" }, ["Profit / Plate"]),
+          el("th", { class: "num" }, ["Weekly Profit"]),
+        ]),
+      ]),
+    ]);
+    const tbody = el("tbody");
+    const n = ranked.length;
+    ranked.forEach((row, idx) => {
+      let flag = null;
+      if (idx < 3) flag = el("span", { class: "pill good" }, ["Top seller"]);
+      else if (idx >= n - 3) flag = el("span", { class: "pill warn" }, ["Slow mover"]);
+      tbody.append(
+        el("tr", {}, [
+          el("td", {}, [el("strong", {}, [row.recipe.name]), flag ? el("span", { style: "margin-left:8px" }, [flag]) : null]),
+          el("td", {}, [el("span", { class: "pill" }, [row.recipe.menu || "Dinner"])]),
+          el("td", { class: "num" }, [Calc.fmtNum(row.servings, 0)]),
+          el("td", {}, [
+            el("div", { class: "bar" }, [
+              el("div", { class: "bar-fill", style: `width:${(row.servings / maxServings) * 100}%` }),
+            ]),
+            el("div", { class: "muted small-note" }, [Calc.fmtPct(row.share)]),
+          ]),
+          el("td", { class: "num" }, [Calc.fmtMoney(row.cost)]),
+          el("td", { class: "num" }, [row.recipe.menuPrice ? Calc.fmtMoney(row.recipe.menuPrice) : "—"]),
+          el("td", { class: "num" }, [row.foodCostPct === null ? "—" : Calc.fmtPct(row.foodCostPct)]),
+          el("td", { class: "num" }, [row.recipe.menuPrice ? Calc.fmtMoney(row.profitEach) : "—"]),
+          el("td", { class: "num" }, [el("strong", {}, [Calc.fmtMoney(row.weeklyProfit)])]),
+        ])
+      );
+    });
+    table.append(tbody);
+    card.append(el("div", { class: "table-wrap" }, [table]));
+    return card;
+  }
+
+  // ---- what earns ----
+  function renderMenuEngineeringCard() {
+    const { rows, medServings, medProfit } = Calc.menuEngineering(state.recipes, getIngredient);
+    const card = el("div", { class: "card" }, [
+      el("h3", {}, ["Menu Engineering"]),
+      el("div", { class: "sub", style: "margin-bottom:12px" }, [
+        `Every priced dish sorted on two axes: how often it sells and how much it earns per plate. The split is the menu median — ${Calc.fmtNum(medServings, 0)} servings a week and ${Calc.fmtMoney(medProfit)} profit per plate.`,
+      ]),
+    ]);
+    if (!rows.length) {
+      card.append(el("div", { class: "empty-state" }, ["Set menu prices to see the menu engineering read."]));
+      return card;
+    }
+
+    const grid = el("div", { class: "grid grid-2" });
+    ["star", "plowhorse", "puzzle", "dog"].forEach((cls) => {
+      const meta = Calc.MENU_CLASSES[cls];
+      const members = rows.filter((r) => r.menuClass === cls);
+      const box = el("div", { class: "quad quad-" + cls }, [
+        el("div", { class: "quad-head" }, [
+          el("strong", {}, [meta.label]),
+          el("span", { class: "pill" }, [String(members.length)]),
+        ]),
+        el("div", { class: "muted small-note", style: "margin-bottom:8px" }, [meta.blurb]),
+      ]);
+      if (!members.length) {
+        box.append(el("div", { class: "muted small-note" }, ["Nothing here."]));
+      } else {
+        const list = el("ul", { class: "breakdown-list" });
+        members.forEach((m) => {
+          list.append(
+            el("li", {}, [
+              el("span", {}, [m.recipe.name]),
+              el("span", { class: "muted" }, [`${Calc.fmtNum(m.servings, 0)}/wk · ${Calc.fmtMoney(m.profitEach)}/plate`]),
+            ])
+          );
+        });
+        box.append(list);
+      }
+      grid.append(box);
+    });
+    card.append(grid);
+    return card;
+  }
+
+  // ---- what shares a prep list ----
+  function renderSharedIngredientsCard() {
+    const pairs = Calc.sharedIngredientPairs(state.recipes, getIngredient, 3).slice(0, 12);
+    const card = el("div", { class: "card" }, [
+      el("h3", {}, ["Dishes That Share Ingredients"]),
+      el("div", { class: "sub", style: "margin-bottom:10px" }, ["Pairs with the most overlap. High overlap is good news: one delivery covers both, and a slow night on one still moves the product."]),
+    ]);
+    if (!pairs.length) {
+      card.append(el("div", { class: "empty-state" }, ["No two dishes share three or more ingredients yet."]));
+      return card;
+    }
+    const table = el("table", {}, [
+      el("thead", {}, [
+        el("tr", {}, [
+          el("th", {}, ["Dish"]),
+          el("th", {}, ["Shares With"]),
+          el("th", { class: "num" }, ["Shared"]),
+          el("th", { class: "num" }, ["Overlap"]),
+          el("th", {}, ["What They Share"]),
+        ]),
+      ]),
+    ]);
+    const tbody = el("tbody");
+    pairs.forEach((pair) => {
+      tbody.append(
+        el("tr", {}, [
+          el("td", {}, [el("strong", {}, [pair.a.name])]),
+          el("td", {}, [el("strong", {}, [pair.b.name])]),
+          el("td", { class: "num" }, [String(pair.sharedCount)]),
+          el("td", { class: "num" }, [Calc.fmtPct(pair.overlapPct)]),
+          el("td", {}, [
+            el("div", { class: "tag-list" }, pair.shared.map((ing) => el("span", { class: "tag" }, [ing.name]))),
+          ]),
+        ])
+      );
+    });
+    table.append(tbody);
+    card.append(el("div", { class: "table-wrap" }, [table]));
+    return card;
+  }
+
+  // ---- what stands alone ----
+  function renderStandaloneCard() {
+    const rows = Calc.crossUtilization(state.recipes, getIngredient);
+    const card = el("div", { class: "card" }, [
+      el("h3", {}, ["Dishes That Stand Alone"]),
+      el("div", { class: "sub", style: "margin-bottom:10px" }, ["Least cross-utilized first. A dish low on this list carries ingredients nothing else on the menu uses — that's where spoilage and dead inventory come from, and it's the hardest kind of dish to keep on."]),
+    ]);
+    const table = el("table", {}, [
+      el("thead", {}, [
+        el("tr", {}, [
+          el("th", {}, ["Dish"]),
+          el("th", {}, ["Menu"]),
+          el("th", { class: "num" }, ["Ingredients"]),
+          el("th", {}, ["Shared With Other Dishes"]),
+          el("th", {}, ["Used Nowhere Else"]),
+        ]),
+      ]),
+    ]);
+    const tbody = el("tbody");
+    rows.forEach((row) => {
+      const lonely = row.sharedPct < 50;
+      tbody.append(
+        el("tr", { class: row.sharedPct === 0 ? "row-bad" : lonely ? "row-warn" : "" }, [
+          el("td", {}, [el("strong", {}, [row.recipe.name])]),
+          el("td", {}, [el("span", { class: "pill" }, [row.recipe.menu || "Dinner"])]),
+          el("td", { class: "num" }, [String(row.ingredientCount)]),
+          el("td", {}, [
+            el("div", { class: "bar" }, [el("div", { class: "bar-fill", style: `width:${row.sharedPct}%` })]),
+            el("div", { class: "muted small-note" }, [`${Calc.fmtPct(row.sharedPct)} shared`]),
+          ]),
+          el("td", {}, [
+            row.exclusive.length
+              ? el("div", { class: "tag-list" }, row.exclusive.map((ing) => el("span", { class: "tag warn" }, [ing.name])))
+              : el("span", { class: "muted" }, ["Nothing — every ingredient earns its keep elsewhere"]),
+          ]),
+        ])
+      );
+    });
+    table.append(tbody);
+    card.append(el("div", { class: "table-wrap" }, [table]));
+    return card;
+  }
+
+  // ---- single-use inventory ----
+  function renderOrphanCard() {
+    const orphans = Calc.orphanIngredients(state.recipes, state.ingredients);
+    const tied = orphans.reduce((sum, o) => sum + o.onHandValue, 0);
+    const card = el("div", { class: "card" }, [
+      el("h3", {}, ["Single-Use Ingredients"]),
+      el("div", { class: "sub", style: "margin-bottom:10px" }, [
+        orphans.length
+          ? `${orphans.length} ingredient${orphans.length === 1 ? "" : "s"} only one dish uses, holding ${Calc.fmtMoney(tied)} of inventory. Pull that dish and this stock has nowhere to go.`
+          : "Every ingredient is used by more than one dish.",
+      ]),
+    ]);
+    if (!orphans.length) return card;
+    const table = el("table", {}, [
+      el("thead", {}, [
+        el("tr", {}, [
+          el("th", {}, ["Ingredient"]),
+          el("th", {}, ["Only Used By"]),
+          el("th", { class: "num" }, ["On Hand"]),
+        ]),
+      ]),
+    ]);
+    const tbody = el("tbody");
+    orphans.slice(0, 12).forEach((o) => {
+      tbody.append(
+        el("tr", {}, [
+          el("td", {}, [el("strong", {}, [o.ingredient.name])]),
+          el("td", { class: "muted" }, [o.usedBy.name]),
+          el("td", { class: "num" }, [Calc.fmtMoney(o.onHandValue)]),
+        ])
+      );
+    });
+    table.append(tbody);
+    card.append(el("div", { class: "table-wrap" }, [table]));
+    return card;
+  }
+
+  // ---- the opposite end ----
+  function renderWorkhorseCard() {
+    const workhorses = Calc.workhorseIngredients(state.recipes, state.ingredients, 10);
+    const card = el("div", { class: "card" }, [
+      el("h3", {}, ["Workhorse Ingredients"]),
+      el("div", { class: "sub", style: "margin-bottom:10px" }, ["Carrying the most dishes. A supplier price rise on any of these moves your food cost across the whole menu at once."]),
+    ]);
+    if (!workhorses.length) {
+      card.append(el("div", { class: "empty-state" }, ["No ingredient is shared between dishes yet."]));
+      return card;
+    }
+    const table = el("table", {}, [
+      el("thead", {}, [
+        el("tr", {}, [
+          el("th", {}, ["Ingredient"]),
+          el("th", { class: "num" }, ["Dishes"]),
+          el("th", { class: "num" }, ["Cost / Usable Unit"]),
+        ]),
+      ]),
+    ]);
+    const tbody = el("tbody");
+    workhorses.forEach((w) => {
+      tbody.append(
+        el("tr", {}, [
+          el("td", {}, [el("strong", {}, [w.ingredient.name])]),
+          el("td", { class: "num" }, [String(w.dishes.length)]),
+          el("td", { class: "num" }, [`${Calc.fmtMoney(Calc.costPerUsableUnit(w.ingredient))} / ${Calc.unitLabel(w.ingredient, 1)}`]),
+        ])
+      );
+    });
+    table.append(tbody);
+    card.append(el("div", { class: "table-wrap" }, [table]));
+    return card;
+  }
+
   // ================= DASHBOARD =================
   function renderDashboard() {
     const panel = $("#panel-dashboard");
@@ -1626,6 +1980,7 @@ const App = (function () {
     renderIngredients();
     renderRecipes();
     renderInventory();
+    renderInsights();
     renderUsage();
     renderEvents();
   }

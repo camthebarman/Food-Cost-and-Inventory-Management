@@ -6,7 +6,7 @@
 
 const Storage = (function () {
   const KEY = "noneLeftOnPlate.v1";
-  const SEED_VERSION = 1;
+  const SEED_VERSION = 2;
 
   // ---- Ingredients ----
   // Purchase packs and prices below are real quotes captured on 2026-09-15 from:
@@ -75,6 +75,42 @@ const Storage = (function () {
       { id: "ing_cutlery_kit", sinceVersion: 1, name: "Cutlery Kit", category: "Disposables", baseUnit: "each", unitNoun: "kit", purchaseUnit: "each", purchaseQty: 500, purchaseCost: 22.99, yieldPct: 100, onHandQty: 200, parQty: 100 }, // [W] wrapped, w/ napkin
       { id: "ing_napkin", sinceVersion: 1, name: "Dinner Napkin", category: "Disposables", baseUnit: "each", unitNoun: "napkin", purchaseUnit: "each", purchaseQty: 3000, purchaseCost: 32.99, yieldPct: 100, onHandQty: 800, parQty: 400 }, // [W] 2-ply 17x15
       { id: "ing_chafing_fuel", sinceVersion: 1, name: "Chafing Fuel Can", category: "Disposables", baseUnit: "each", unitNoun: "can", purchaseUnit: "each", purchaseQty: 24, purchaseCost: 27.99, yieldPct: 100, onHandQty: 24, parQty: 12 }, // [W] 4 hr wick
+
+      // ===== v2: full restaurant menu build-out =====
+      // Protein
+      { id: "ing_chicken_wings", sinceVersion: 2, name: "Chicken Wings (jumbo cut)", category: "Protein", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 40, purchaseCost: 79.99, yieldPct: 100, onHandQty: 320, parQty: 240 }, // [W] uncooked frozen 40 lb
+      { id: "ing_shrimp", sinceVersion: 2, name: "Raw Shrimp 16/20 P&D", category: "Protein", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 20, purchaseCost: 194.99, yieldPct: 95, onHandQty: 96, parQty: 80 }, // [W] 10x2 lb split/deveined
+      { id: "ing_cod_portion", sinceVersion: 2, name: "Beer-Battered Cod Portions", category: "Protein", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 10, purchaseCost: 128.75, yieldPct: 100, onHandQty: 80, parQty: 64 }, // [W] 10 oz portions, 10 lb
+      { id: "ing_ribeye", sinceVersion: 2, name: "Bone-In Ribeye (14 oz)", category: "Protein", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 10.5, purchaseCost: 242.49, yieldPct: 100, onHandQty: 112, parQty: 84 }, // [W] 12x14 oz frozen
+      { id: "ing_turkey_breast", sinceVersion: 2, name: "Sliced Turkey Breast", category: "Protein", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 18, purchaseCost: 129.99, yieldPct: 100, onHandQty: 144, parQty: 96 }, // [W] oil browned, 2x9 lb
+
+      // Produce — [T] terminal market wholesale
+      { id: "ing_celery", sinceVersion: 2, name: "Celery", category: "Produce", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 50, purchaseCost: 27, yieldPct: 75, onHandQty: 240, parQty: 160 }, // NY 9/14, 2.5 dz carton
+      { id: "ing_jalapeno", sinceVersion: 2, name: "Jalapeño Peppers", category: "Produce", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 28, purchaseCost: 28.5, yieldPct: 85, onHandQty: 64, parQty: 48 }, // NY 9/14, 1 1/9 bu carton
+      { id: "ing_green_onion", sinceVersion: 2, name: "Green Onion", category: "Produce", baseUnit: "each", unitNoun: "bunch", purchaseUnit: "each", purchaseQty: 48, purchaseCost: 27, yieldPct: 80, onHandQty: 24, parQty: 24 }, // NY 9/14, bunched 48s
+      { id: "ing_spinach", sinceVersion: 2, name: "Baby Spinach", category: "Produce", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 10, purchaseCost: 19, yieldPct: 90, onHandQty: 48, parQty: 40 }, // NY 9/14, 4x2.5 lb bags
+      { id: "ing_asparagus", sinceVersion: 2, name: "Asparagus", category: "Produce", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 11, purchaseCost: 61, yieldPct: 65, onHandQty: 44, parQty: 44 }, // NY 9/14, 11 lb bunched
+      { id: "ing_eggplant", sinceVersion: 2, name: "Eggplant", category: "Produce", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 30, purchaseCost: 15, yieldPct: 80, onHandQty: 96, parQty: 64 }, // NY 9/14, 1 1/9 bu carton
+      { id: "ing_avocado", sinceVersion: 2, name: "Avocado", category: "Produce", baseUnit: "each", unitNoun: "avocado", purchaseUnit: "each", purchaseQty: 18, purchaseCost: 36.5, yieldPct: 70, onHandQty: 18, parQty: 18 }, // NY 9/14, 2 layer 18s
+
+      // Dairy
+      { id: "ing_cream_cheese", sinceVersion: 2, name: "Cream Cheese", category: "Dairy", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 18, purchaseCost: 88.74, yieldPct: 100, onHandQty: 144, parQty: 96 }, // [W] 6x3 lb block
+      { id: "ing_sour_cream", sinceVersion: 2, name: "Sour Cream", category: "Dairy", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 20, purchaseCost: 58.99, yieldPct: 100, onHandQty: 160, parQty: 96 }, // [W] 4x5 lb tub
+
+      // Bakery
+      { id: "ing_tortilla_chip", sinceVersion: 2, name: "Tortilla Chips", category: "Bakery", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 12, purchaseCost: 46.49, yieldPct: 100, onHandQty: 96, parQty: 96 }, // [W] 6x2 lb round
+      { id: "ing_flour_tortilla", sinceVersion: 2, name: 'Flour Tortilla (12")', category: "Bakery", baseUnit: "each", unitNoun: "tortilla", purchaseUnit: "each", purchaseQty: 72, purchaseCost: 33.49, yieldPct: 100, onHandQty: 60, parQty: 48 }, // [W] 72 ct
+      { id: "ing_baguette", sinceVersion: 2, name: "Par-Baked Baguette", category: "Bakery", baseUnit: "each", unitNoun: "baguette", purchaseUnit: "each", purchaseQty: 32, purchaseCost: 41.99, yieldPct: 100, onHandQty: 24, parQty: 24 }, // [W] 12" half, 32 ct
+      { id: "ing_mozz_sticks", sinceVersion: 2, name: "Breaded Mozzarella Sticks", category: "Prep / Sub-Recipe", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 12, purchaseCost: 72.49, yieldPct: 100, onHandQty: 96, parQty: 96 }, // [W] 3", 12 lb case
+
+      // Pantry
+      { id: "ing_hot_sauce", sinceVersion: 2, name: "Buffalo Wing Sauce", category: "Pantry", baseUnit: "floz", purchaseUnit: "gal", purchaseQty: 4, purchaseCost: 65.99, yieldPct: 100, onHandQty: 256, parQty: 256 }, // [W] Frank's RedHot 4x1 gal
+      { id: "ing_mayo", sinceVersion: 2, name: "Mayonnaise", category: "Pantry", baseUnit: "floz", purchaseUnit: "gal", purchaseQty: 4, purchaseCost: 96.99, yieldPct: 100, onHandQty: 256, parQty: 128 }, // [W] Hellmann's Real 4x1 gal
+      { id: "ing_ranch", sinceVersion: 2, name: "Ranch Dressing", category: "Pantry", baseUnit: "floz", purchaseUnit: "gal", purchaseQty: 4, purchaseCost: 86.99, yieldPct: 100, onHandQty: 256, parQty: 256 }, // [W] Hidden Valley 4x1 gal
+      { id: "ing_cocktail_sauce", sinceVersion: 2, name: "Cocktail Sauce", category: "Pantry", baseUnit: "ozwt", purchaseUnit: "lb", purchaseQty: 32, purchaseCost: 50.49, yieldPct: 100, onHandQty: 128, parQty: 96 }, // [W] Tulkoff 4x8 lb
+      { id: "ing_tartar_sauce", sinceVersion: 2, name: "Tartar Sauce", category: "Pantry", baseUnit: "floz", purchaseUnit: "gal", purchaseQty: 4, purchaseCost: 76.49, yieldPct: 100, onHandQty: 256, parQty: 128 }, // [W] Ken's 4x1 gal
+      { id: "ing_salsa", sinceVersion: 2, name: "Salsa (#10 can)", category: "Pantry", baseUnit: "ozwt", purchaseUnit: "ozwt", purchaseQty: 102, purchaseCost: 5.67, yieldPct: 100, onHandQty: 204, parQty: 204 }, // [W] Del Sol $33.99/6 cans
+      { id: "ing_artichoke", sinceVersion: 2, name: "Artichoke Hearts (#10 can)", category: "Pantry", baseUnit: "ozwt", purchaseUnit: "ozwt", purchaseQty: 102, purchaseCost: 10.58, yieldPct: 100, onHandQty: 204, parQty: 102 }, // [W] whole, $63.49/6 cans
     ];
   }
 
@@ -85,7 +121,7 @@ const Storage = (function () {
     const g = Calc.uid;
     return [
       {
-        id: "rec_classic_burger", sinceVersion: 1, name: "Classic Cheeseburger & Fries", category: "Sandwiches",
+        id: "rec_classic_burger", sinceVersion: 1, name: "Classic Cheeseburger & Fries", category: "Sandwiches", menu: "Lunch",
         portions: 1, menuPrice: 16, targetFoodCostPct: 30, servingsPerWeek: 210,
         notes: "6 oz patty, smashed. Fries salted to order.",
         components: [
@@ -102,7 +138,7 @@ const Storage = (function () {
         ],
       },
       {
-        id: "rec_chicken_caesar", sinceVersion: 1, name: "Chicken Caesar Salad", category: "Salads",
+        id: "rec_chicken_caesar", sinceVersion: 1, name: "Chicken Caesar Salad", category: "Salads", menu: "Lunch",
         portions: 1, menuPrice: 14, targetFoodCostPct: 28, servingsPerWeek: 140,
         notes: "Grilled chicken, sliced on the bias.",
         components: [
@@ -117,7 +153,7 @@ const Storage = (function () {
         ],
       },
       {
-        id: "rec_spaghetti_bolognese", sinceVersion: 1, name: "Spaghetti Bolognese", category: "Pasta",
+        id: "rec_spaghetti_bolognese", sinceVersion: 1, name: "Spaghetti Bolognese", category: "Pasta", menu: "Dinner",
         portions: 8, menuPrice: 18, targetFoodCostPct: 26, servingsPerWeek: 120,
         notes: "Batch recipe — sauce yields 8 plates. Quantities below are per batch.",
         components: [
@@ -135,8 +171,8 @@ const Storage = (function () {
         ],
       },
       {
-        id: "rec_grilled_salmon", sinceVersion: 1, name: "Grilled Salmon & Jasmine Rice", category: "Entrées",
-        portions: 1, menuPrice: 18, targetFoodCostPct: 30, servingsPerWeek: 95,
+        id: "rec_grilled_salmon", sinceVersion: 1, name: "Grilled Salmon & Jasmine Rice", category: "Entrées", menu: "Dinner",
+        portions: 1, menuPrice: 26, targetFoodCostPct: 30, servingsPerWeek: 95,
         notes: "6 oz fillet, skin on. Rice steamed in stock.",
         components: [
           { id: g("comp"), ingredientId: "ing_salmon_fillet", qty: 6 },
@@ -151,7 +187,7 @@ const Storage = (function () {
         ],
       },
       {
-        id: "rec_margherita_flatbread", sinceVersion: 1, name: "Margherita Flatbread", category: "Flatbreads",
+        id: "rec_margherita_flatbread", sinceVersion: 1, name: "Margherita Flatbread", category: "Flatbreads", menu: "Lunch",
         portions: 1, menuPrice: 15, targetFoodCostPct: 24, servingsPerWeek: 130,
         notes: "Deck oven, 6 minutes. Basil after the bake.",
         components: [
@@ -164,7 +200,7 @@ const Storage = (function () {
         ],
       },
       {
-        id: "rec_chicken_alfredo", sinceVersion: 1, name: "Chicken Alfredo", category: "Pasta",
+        id: "rec_chicken_alfredo", sinceVersion: 1, name: "Chicken Alfredo", category: "Pasta", menu: "Dinner",
         portions: 1, menuPrice: 19, targetFoodCostPct: 28, servingsPerWeek: 110,
         notes: "Sauce mounted to order.",
         components: [
@@ -179,7 +215,7 @@ const Storage = (function () {
         ],
       },
       {
-        id: "rec_herb_potatoes", sinceVersion: 1, name: "Herb Roasted Potatoes", category: "Sides",
+        id: "rec_herb_potatoes", sinceVersion: 1, name: "Herb Roasted Potatoes", category: "Sides", menu: "Dinner",
         portions: 12, menuPrice: 6, targetFoodCostPct: 18, servingsPerWeek: 90,
         notes: "Batch recipe — one full sheet pan yields 12 sides.",
         components: [
@@ -189,6 +225,231 @@ const Storage = (function () {
           { id: g("comp"), ingredientId: "ing_garlic", qty: 1 },
           { id: g("comp"), ingredientId: "ing_kosher_salt", qty: 0.6 },
           { id: g("comp"), ingredientId: "ing_black_pepper", qty: 0.2 },
+        ],
+      },
+
+      // ===== v2: Appetizers =====
+      {
+        id: "rec_wings", sinceVersion: 2, name: "Crispy Buffalo Wings", category: "Shareable", menu: "Appetizers",
+        portions: 1, menuPrice: 15, targetFoodCostPct: 30, servingsPerWeek: 185,
+        notes: "10 oz jumbo cut, fried twice. Sauce tossed to order.",
+        components: [
+          { id: g("comp"), ingredientId: "ing_chicken_wings", qty: 10 },
+          { id: g("comp"), ingredientId: "ing_hot_sauce", qty: 2 },
+          { id: g("comp"), ingredientId: "ing_butter", qty: 0.5 },
+          { id: g("comp"), ingredientId: "ing_ranch", qty: 2 },
+          { id: g("comp"), ingredientId: "ing_celery", qty: 1.5 },
+          { id: g("comp"), ingredientId: "ing_fryer_oil", qty: 0.5 },
+          { id: g("comp"), ingredientId: "ing_napkin", qty: 2 },
+        ],
+      },
+      {
+        id: "rec_nachos", sinceVersion: 2, name: "Loaded Nachos", category: "Shareable", menu: "Appetizers",
+        portions: 1, menuPrice: 14, targetFoodCostPct: 28, servingsPerWeek: 150,
+        notes: "Built in layers so the chips on the bottom still get cheese.",
+        components: [
+          { id: g("comp"), ingredientId: "ing_tortilla_chip", qty: 5 },
+          { id: g("comp"), ingredientId: "ing_cheddar", qty: 3 },
+          { id: g("comp"), ingredientId: "ing_ground_beef", qty: 3 },
+          { id: g("comp"), ingredientId: "ing_salsa", qty: 3 },
+          { id: g("comp"), ingredientId: "ing_sour_cream", qty: 2 },
+          { id: g("comp"), ingredientId: "ing_jalapeno", qty: 0.5 },
+          { id: g("comp"), ingredientId: "ing_green_onion", qty: 0.1 },
+          { id: g("comp"), ingredientId: "ing_napkin", qty: 2 },
+        ],
+      },
+      {
+        id: "rec_mozz_sticks", sinceVersion: 2, name: "Fried Mozzarella Sticks", category: "Shareable", menu: "Appetizers",
+        portions: 1, menuPrice: 11, targetFoodCostPct: 26, servingsPerWeek: 120,
+        notes: "Six per order. Marinara warmed, not hot.",
+        components: [
+          { id: g("comp"), ingredientId: "ing_mozz_sticks", qty: 6 },
+          { id: g("comp"), ingredientId: "ing_crushed_tomato", qty: 3 },
+          { id: g("comp"), ingredientId: "ing_parmesan", qty: 0.3 },
+          { id: g("comp"), ingredientId: "ing_basil", qty: 0.05 },
+          { id: g("comp"), ingredientId: "ing_fryer_oil", qty: 0.4 },
+          { id: g("comp"), ingredientId: "ing_napkin", qty: 1 },
+        ],
+      },
+      {
+        id: "rec_spinach_dip", sinceVersion: 2, name: "Spinach & Artichoke Dip", category: "Shareable", menu: "Appetizers",
+        portions: 1, menuPrice: 13, targetFoodCostPct: 25, servingsPerWeek: 110,
+        notes: "Baked to order in a cast iron crock.",
+        components: [
+          { id: g("comp"), ingredientId: "ing_spinach", qty: 2 },
+          { id: g("comp"), ingredientId: "ing_artichoke", qty: 2.5 },
+          { id: g("comp"), ingredientId: "ing_cream_cheese", qty: 3 },
+          { id: g("comp"), ingredientId: "ing_parmesan", qty: 1 },
+          { id: g("comp"), ingredientId: "ing_mozzarella", qty: 1.5 },
+          { id: g("comp"), ingredientId: "ing_garlic", qty: 0.15 },
+          { id: g("comp"), ingredientId: "ing_tortilla_chip", qty: 3 },
+        ],
+      },
+      {
+        id: "rec_garlic_bread", sinceVersion: 2, name: "Parmesan Garlic Bread", category: "Shareable", menu: "Appetizers",
+        portions: 1, menuPrice: 8, targetFoodCostPct: 20, servingsPerWeek: 95,
+        notes: "Half baguette, split and broiled.",
+        components: [
+          { id: g("comp"), ingredientId: "ing_baguette", qty: 1 },
+          { id: g("comp"), ingredientId: "ing_butter", qty: 1.5 },
+          { id: g("comp"), ingredientId: "ing_garlic", qty: 0.3 },
+          { id: g("comp"), ingredientId: "ing_parmesan", qty: 0.5 },
+          { id: g("comp"), ingredientId: "ing_olive_oil", qty: 0.25 },
+          { id: g("comp"), ingredientId: "ing_basil", qty: 0.05 },
+        ],
+      },
+      {
+        id: "rec_tomato_bisque", sinceVersion: 2, name: "Tomato Basil Bisque", category: "Soup", menu: "Appetizers",
+        portions: 8, menuPrice: 8, targetFoodCostPct: 18, servingsPerWeek: 85,
+        notes: "Batch recipe — one batch yields 8 cups. Quantities below are per batch.",
+        components: [
+          { id: g("comp"), ingredientId: "ing_crushed_tomato", qty: 80 },
+          { id: g("comp"), ingredientId: "ing_heavy_cream", qty: 24 },
+          { id: g("comp"), ingredientId: "ing_chicken_stock", qty: 40 },
+          { id: g("comp"), ingredientId: "ing_yellow_onion", qty: 10 },
+          { id: g("comp"), ingredientId: "ing_butter", qty: 6 },
+          { id: g("comp"), ingredientId: "ing_garlic", qty: 1 },
+          { id: g("comp"), ingredientId: "ing_basil", qty: 0.75 },
+          { id: g("comp"), ingredientId: "ing_kosher_salt", qty: 0.4 },
+          { id: g("comp"), ingredientId: "ing_black_pepper", qty: 0.1 },
+        ],
+      },
+      {
+        id: "rec_shrimp_cocktail", sinceVersion: 2, name: "Chilled Shrimp Cocktail", category: "Shareable", menu: "Appetizers",
+        portions: 1, menuPrice: 17, targetFoodCostPct: 32, servingsPerWeek: 70,
+        notes: "Five 16/20 shrimp, poached and shocked.",
+        components: [
+          { id: g("comp"), ingredientId: "ing_shrimp", qty: 5 },
+          { id: g("comp"), ingredientId: "ing_cocktail_sauce", qty: 2 },
+          { id: g("comp"), ingredientId: "ing_lemon", qty: 0.25 },
+          { id: g("comp"), ingredientId: "ing_romaine", qty: 1 },
+        ],
+      },
+
+      // ===== v2: Lunch =====
+      {
+        id: "rec_turkey_club", sinceVersion: 2, name: "Turkey Club on Brioche", category: "Sandwiches", menu: "Lunch",
+        portions: 1, menuPrice: 15, targetFoodCostPct: 30, servingsPerWeek: 125,
+        notes: "Double stacked, cut on the diagonal. Fries to the side.",
+        components: [
+          { id: g("comp"), ingredientId: "ing_turkey_breast", qty: 5 },
+          { id: g("comp"), ingredientId: "ing_bacon", qty: 1.5 },
+          { id: g("comp"), ingredientId: "ing_brioche_bun", qty: 1 },
+          { id: g("comp"), ingredientId: "ing_romaine", qty: 0.5 },
+          { id: g("comp"), ingredientId: "ing_roma_tomato", qty: 1.5 },
+          { id: g("comp"), ingredientId: "ing_mayo", qty: 1 },
+          { id: g("comp"), ingredientId: "ing_russet_potato", qty: 6 },
+          { id: g("comp"), ingredientId: "ing_fryer_oil", qty: 0.5 },
+          { id: g("comp"), ingredientId: "ing_kosher_salt", qty: 0.1 },
+          { id: g("comp"), ingredientId: "ing_napkin", qty: 1 },
+        ],
+      },
+      {
+        id: "rec_chicken_wrap", sinceVersion: 2, name: "Grilled Chicken Wrap", category: "Sandwiches", menu: "Lunch",
+        portions: 1, menuPrice: 13, targetFoodCostPct: 28, servingsPerWeek: 115,
+        notes: "Griddled seam-side down to seal.",
+        components: [
+          { id: g("comp"), ingredientId: "ing_flour_tortilla", qty: 1 },
+          { id: g("comp"), ingredientId: "ing_chicken_breast", qty: 5 },
+          { id: g("comp"), ingredientId: "ing_romaine", qty: 2 },
+          { id: g("comp"), ingredientId: "ing_roma_tomato", qty: 1 },
+          { id: g("comp"), ingredientId: "ing_cheddar", qty: 1 },
+          { id: g("comp"), ingredientId: "ing_ranch", qty: 1.5 },
+          { id: g("comp"), ingredientId: "ing_russet_potato", qty: 4 },
+          { id: g("comp"), ingredientId: "ing_fryer_oil", qty: 0.3 },
+        ],
+      },
+      {
+        id: "rec_fish_chips", sinceVersion: 2, name: "Beer-Battered Fish & Chips", category: "Entrées", menu: "Lunch",
+        portions: 1, menuPrice: 19, targetFoodCostPct: 32, servingsPerWeek: 105,
+        notes: "Two pieces. Chips salted the second they leave the fryer.",
+        components: [
+          { id: g("comp"), ingredientId: "ing_cod_portion", qty: 8 },
+          { id: g("comp"), ingredientId: "ing_russet_potato", qty: 8 },
+          { id: g("comp"), ingredientId: "ing_tartar_sauce", qty: 2 },
+          { id: g("comp"), ingredientId: "ing_lemon", qty: 0.25 },
+          { id: g("comp"), ingredientId: "ing_fryer_oil", qty: 1 },
+          { id: g("comp"), ingredientId: "ing_kosher_salt", qty: 0.15 },
+          { id: g("comp"), ingredientId: "ing_napkin", qty: 1 },
+        ],
+      },
+      {
+        id: "rec_cobb_salad", sinceVersion: 2, name: "Chopped Cobb Salad", category: "Salads", menu: "Lunch",
+        portions: 1, menuPrice: 16, targetFoodCostPct: 30, servingsPerWeek: 80,
+        notes: "Chopped fine, dressed in the bowl, rows broken on the pass.",
+        components: [
+          { id: g("comp"), ingredientId: "ing_romaine", qty: 5 },
+          { id: g("comp"), ingredientId: "ing_chicken_breast", qty: 4 },
+          { id: g("comp"), ingredientId: "ing_bacon", qty: 1.5 },
+          { id: g("comp"), ingredientId: "ing_egg", qty: 1 },
+          { id: g("comp"), ingredientId: "ing_avocado", qty: 0.25 },
+          { id: g("comp"), ingredientId: "ing_roma_tomato", qty: 1.5 },
+          { id: g("comp"), ingredientId: "ing_cheddar", qty: 1 },
+          { id: g("comp"), ingredientId: "ing_ranch", qty: 2 },
+        ],
+      },
+
+      // ===== v2: Dinner =====
+      {
+        id: "rec_ribeye", sinceVersion: 2, name: "Bone-In Ribeye & Asparagus", category: "Entrées", menu: "Dinner",
+        portions: 1, menuPrice: 58, targetFoodCostPct: 32, servingsPerWeek: 65,
+        notes: "14 oz, grilled over hardwood, rested 6 minutes, butter basted.",
+        components: [
+          { id: g("comp"), ingredientId: "ing_ribeye", qty: 14 },
+          { id: g("comp"), ingredientId: "ing_asparagus", qty: 4 },
+          { id: g("comp"), ingredientId: "ing_russet_potato", qty: 8 },
+          { id: g("comp"), ingredientId: "ing_butter", qty: 1 },
+          { id: g("comp"), ingredientId: "ing_garlic", qty: 0.2 },
+          { id: g("comp"), ingredientId: "ing_olive_oil", qty: 0.5 },
+          { id: g("comp"), ingredientId: "ing_kosher_salt", qty: 0.15 },
+          { id: g("comp"), ingredientId: "ing_black_pepper", qty: 0.05 },
+        ],
+      },
+      {
+        id: "rec_shrimp_scampi", sinceVersion: 2, name: "Shrimp Scampi", category: "Pasta", menu: "Dinner",
+        portions: 1, menuPrice: 24, targetFoodCostPct: 30, servingsPerWeek: 75,
+        notes: "Six shrimp. Pan sauce mounted with cold butter off the heat.",
+        components: [
+          { id: g("comp"), ingredientId: "ing_shrimp", qty: 6 },
+          { id: g("comp"), ingredientId: "ing_spaghetti", qty: 4 },
+          { id: g("comp"), ingredientId: "ing_butter", qty: 2 },
+          { id: g("comp"), ingredientId: "ing_heavy_cream", qty: 2 },
+          { id: g("comp"), ingredientId: "ing_garlic", qty: 0.4 },
+          { id: g("comp"), ingredientId: "ing_lemon", qty: 0.3 },
+          { id: g("comp"), ingredientId: "ing_parmesan", qty: 0.5 },
+          { id: g("comp"), ingredientId: "ing_basil", qty: 0.1 },
+          { id: g("comp"), ingredientId: "ing_black_pepper", qty: 0.03 },
+        ],
+      },
+      {
+        id: "rec_roast_chicken", sinceVersion: 2, name: "Herb Roasted Chicken", category: "Entrées", menu: "Dinner",
+        portions: 1, menuPrice: 22, targetFoodCostPct: 28, servingsPerWeek: 90,
+        notes: "Brined 8 hours, roasted on the bone side first.",
+        components: [
+          { id: g("comp"), ingredientId: "ing_chicken_breast", qty: 8 },
+          { id: g("comp"), ingredientId: "ing_russet_potato", qty: 6 },
+          { id: g("comp"), ingredientId: "ing_carrot", qty: 3 },
+          { id: g("comp"), ingredientId: "ing_chicken_stock", qty: 4 },
+          { id: g("comp"), ingredientId: "ing_butter", qty: 1.5 },
+          { id: g("comp"), ingredientId: "ing_garlic", qty: 0.3 },
+          { id: g("comp"), ingredientId: "ing_kosher_salt", qty: 0.15 },
+          { id: g("comp"), ingredientId: "ing_black_pepper", qty: 0.04 },
+        ],
+      },
+      {
+        id: "rec_eggplant_parm", sinceVersion: 2, name: "Eggplant Parmesan", category: "Entrées", menu: "Dinner",
+        portions: 1, menuPrice: 19, targetFoodCostPct: 24, servingsPerWeek: 55,
+        notes: "Salted and pressed an hour before it gets breaded.",
+        components: [
+          { id: g("comp"), ingredientId: "ing_eggplant", qty: 8 },
+          { id: g("comp"), ingredientId: "ing_crushed_tomato", qty: 6 },
+          { id: g("comp"), ingredientId: "ing_mozzarella", qty: 3 },
+          { id: g("comp"), ingredientId: "ing_spaghetti", qty: 3 },
+          { id: g("comp"), ingredientId: "ing_ap_flour", qty: 1 },
+          { id: g("comp"), ingredientId: "ing_egg", qty: 1 },
+          { id: g("comp"), ingredientId: "ing_parmesan", qty: 1 },
+          { id: g("comp"), ingredientId: "ing_olive_oil", qty: 1 },
+          { id: g("comp"), ingredientId: "ing_basil", qty: 0.1 },
         ],
       },
     ];
@@ -263,6 +524,13 @@ const Storage = (function () {
     mergeNew(state.recipes, seedRecipes());
     mergeNew(state.events, seedEvents());
 
+    // v2 introduced menus. Backfill the menu onto seeded dishes the user already
+    // has, so their existing recipes land on the right menu instead of a default.
+    const seedMenus = new Map(seedRecipes().map((r) => [r.id, r.menu]));
+    state.recipes.forEach((r) => {
+      if (!r.menu && seedMenus.has(r.id)) r.menu = seedMenus.get(r.id);
+    });
+
     state.seedVersion = SEED_VERSION;
     save(state);
     return state;
@@ -284,6 +552,7 @@ const Storage = (function () {
       if (!r.portions) r.portions = 1;
       if (r.targetFoodCostPct == null) r.targetFoodCostPct = state.settings.defaultTargetFoodCostPct;
       if (r.servingsPerWeek == null) r.servingsPerWeek = 0;
+      if (!r.menu) r.menu = "Dinner";
       r.components = r.components || [];
     });
     state.events.forEach((e) => {
