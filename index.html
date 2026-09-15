@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>None Left On The Plate — Food Cost &amp; Inventory Management</title>
+<script src="js/theme.js"></script>
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="app-header-inner">
+      <div class="brand">
+        <span class="brand-mark">🍽️</span>
+        <div>
+          <h1>None Left On The Plate</h1>
+          <p class="tagline">Food cost, inventory &amp; catering planner</p>
+        </div>
+      </div>
+      <nav class="tabs" id="tabs">
+        <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+        <button class="tab-btn" data-tab="ingredients">Ingredients</button>
+        <button class="tab-btn" data-tab="recipes">Recipes</button>
+        <button class="tab-btn" data-tab="inventory">Inventory</button>
+        <button class="tab-btn" data-tab="usage">Usage</button>
+        <button class="tab-btn" data-tab="events">Events</button>
+      </nav>
+      <div class="header-actions">
+        <button class="btn btn-ghost" id="btn-theme-toggle">🌙 Dark Mode</button>
+        <button class="btn btn-ghost" id="btn-export">Export JSON</button>
+        <label class="btn btn-ghost file-btn">
+          Import JSON
+          <input type="file" id="input-import" accept="application/json" hidden />
+        </label>
+        <button class="btn btn-ghost danger" id="btn-reset">Reset Data</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <section id="panel-dashboard" class="panel active"></section>
+    <section id="panel-ingredients" class="panel"></section>
+    <section id="panel-recipes" class="panel"></section>
+    <section id="panel-inventory" class="panel"></section>
+    <section id="panel-usage" class="panel"></section>
+    <section id="panel-events" class="panel"></section>
+  </main>
+
+  <div id="modal-overlay" class="modal-overlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h2 id="modal-title">Title</h2>
+        <button class="modal-close" id="modal-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="js/calc.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
